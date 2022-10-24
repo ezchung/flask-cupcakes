@@ -23,7 +23,7 @@ def list_all_cupcake():
     return jsonify(cupcakes=serialized)
 
 
-@app.get('/api/cupcakes/<int:cupcake_id>')  # TODO: make id int
+@app.get('/api/cupcakes/<int:cupcake_id>')
 def show_single_cupcake_detail(cupcake_id):
     """ Return JSON with detail about a single cupcake
         example: {cupcake: {id, flavor, size, rating, image}}"""
@@ -58,11 +58,11 @@ def create_cupcake():
 def update_cupcake_details(cupcake_id):
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
-
-    flavor = request.json.get("flavor")
-    size = request.json.get("size")
-    rating = request.json.get("rating")
-    image = request.json.get("image")
+    # breakpoint()
+    flavor = request.json["cupcake"].get("flavor")
+    size = request.json["cupcake"].get("size")
+    rating = request.json["cupcake"].get("rating")
+    image = request.json["cupcake"].get("image")
 
     cupcake.flavor = flavor if flavor else cupcake.flavor
     cupcake.size = size if size else cupcake.size
@@ -72,3 +72,13 @@ def update_cupcake_details(cupcake_id):
     db.session.commit()
     serialized = cupcake.serialize()
     return jsonify(cupcake=serialized)
+
+@app.delete("/api/cupcakes/<int:cupcake_id>")
+def delete_cupcake(cupcake_id):
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    db.session.delete(cupcake)
+    db.session.commit()
+
+    return jsonify(f'{"deleted": [{cupcake_id}]}')

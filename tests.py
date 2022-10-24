@@ -27,6 +27,12 @@ CUPCAKE_DATA_2 = {
     "image": "http://test.com/cupcake2.jpg"
 }
 
+CUPCAKE_DATA_3 = {
+    "flavor": "TestFlavor3",
+    "size": "TestSize3",
+    "rating": 3,
+    "image": "http://test.com/cupcake3.jpg"
+}
 
 class CupcakeViewsTestCase(TestCase):
     """Tests for views of API."""
@@ -108,3 +114,43 @@ class CupcakeViewsTestCase(TestCase):
             })
 
             self.assertEqual(Cupcake.query.count(), 2)
+
+
+    def test_patch_cupcake(self):
+        with app.test_client() as client:
+
+            # Make a get request to get cupcake instance eith cupcake.id
+            url = "/api/cupcakes"
+            resp = client.post(url, json=CUPCAKE_DATA_3)
+
+            cupcake_to_patch = resp.json.copy()
+
+            cupcake_to_patch['cupcake']['flavor'] = "Vanilla Test"
+            print('flavor??????????????????? ----------------------->', cupcake_to_patch)
+            id = int(cupcake_to_patch['cupcake']['id'])
+
+
+
+            resp = client.patch(f'{url}/{id}', json=cupcake_to_patch)
+
+            data = resp.get_json()
+            # breakpoint()
+            print("resp $$$$$$$$$$$$$$$$$$$$$$$$$$------------------------------>>>", resp.json)
+
+            # test for proper response code
+            self.assertEqual(resp.status_code, 200)
+
+            #get and delete cupcake id
+
+            #test that data matches original, except updated field
+
+            self.assertEqual(data["cupcake"],
+                {
+                    "flavor": "Vanilla Test",
+                    "id": id,
+                    "size": data["cupcake"]["size"],
+                    "rating": data["cupcake"]["rating"],
+                    "image": data["cupcake"]["image"]
+                }
+            )
+
