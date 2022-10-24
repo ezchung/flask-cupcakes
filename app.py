@@ -23,7 +23,7 @@ def list_all_cupcake():
     return jsonify(cupcakes=serialized)
 
 
-@app.get('/api/cupcakes/<cupcake_id>')
+@app.get('/api/cupcakes/<int:cupcake_id>')  # TODO: make id int
 def show_single_cupcake_detail(cupcake_id):
     """ Return JSON with detail about a single cupcake
         example: {cupcake: {id, flavor, size, rating, image}}"""
@@ -37,12 +37,12 @@ def show_single_cupcake_detail(cupcake_id):
 
 @app.post('/api/cupcakes')
 def create_cupcake():
-    """ Creates cupcake and returns the JSON of cupcake """
+    """ Creates cupcake and returns the JSON of cupcake """  # TODO: more descriptive
 
     flavor = request.json["flavor"]
     size = request.json["size"]
     rating = request.json["rating"]
-    image = request.json["image"]
+    image = request.json.get("image")
 
     new_cupcake = Cupcake(flavor=flavor, size=size, rating=rating, image=image)
 
@@ -52,3 +52,23 @@ def create_cupcake():
     serialized = new_cupcake.serialize()
 
     return (jsonify(cupcake=serialized), 201)
+
+
+@app.patch("/api/cupcakes/<int:cupcake_id>")
+def update_cupcake_details(cupcake_id):
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    flavor = request.json.get("flavor")
+    size = request.json.get("size")
+    rating = request.json.get("rating")
+    image = request.json.get("image")
+
+    cupcake.flavor = flavor if flavor else cupcake.flavor
+    cupcake.size = size if size else cupcake.size
+    cupcake.rating = rating if rating else cupcake.rating
+    cupcake.image = image if image else cupcake.image
+
+    db.session.commit()
+    serialized = cupcake.serialize()
+    return jsonify(cupcake=serialized)
