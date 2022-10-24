@@ -25,3 +25,14 @@ class Cupcake(db.Model):
     size = db.Column(db.String(30), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     image = db.Column(db.Text, nullable=False, default=DEFAULT_IMAGE_URL)
+
+    def serialize(self):
+        """serialize to dictionary"""
+
+        return {
+            "id": self.id,
+            "flavor": self.flavor,
+            "size": self.size,
+            "rating": self.rating,
+            "image": self.image
+        }
