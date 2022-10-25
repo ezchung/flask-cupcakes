@@ -37,11 +37,13 @@ def show_single_cupcake_detail(cupcake_id):
 
 @app.post('/api/cupcakes')
 def create_cupcake():
-    """ Creates cupcake and returns the JSON of cupcake """  # TODO: more descriptive
+    """ Creates cupcake and returns the JSON of new cupcake 
+        example: {cupcake: {id, flavor, size, rating, image}}
+    """
 
-    flavor = request.json["flavor"]
-    size = request.json["size"]
-    rating = request.json["rating"]
+    flavor = request.json.get("flavor")
+    size = request.json.get("size")
+    rating = request.json.get("rating")
     image = request.json.get("image")
 
     new_cupcake = Cupcake(flavor=flavor, size=size, rating=rating, image=image)
@@ -56,6 +58,9 @@ def create_cupcake():
 
 @app.patch("/api/cupcakes/<int:cupcake_id>")
 def update_cupcake_details(cupcake_id):
+    """ Takes JSON like {cupcake: {flavor: Test}} 
+        and returns a JSON {cupcake: {flavor: Vanilla Test}} 
+    """
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
     # breakpoint()
@@ -73,12 +78,21 @@ def update_cupcake_details(cupcake_id):
     serialized = cupcake.serialize()
     return jsonify(cupcake=serialized)
 
+
 @app.delete("/api/cupcakes/<int:cupcake_id>")
 def delete_cupcake(cupcake_id):
+    """ Takes JSON like object and returns JSON 
+        Example: {"deleted": [cupcake_id]} 
+    """
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
 
     db.session.delete(cupcake)
     db.session.commit()
 
-    return jsonify(f'{"deleted": [{cupcake_id}]}')
+    # return jsonify(f'{"deleted": [cupcake_id]}')
+
+    return jsonify(deleted=cupcake_id)
+
+# @app.get("/")
+# def

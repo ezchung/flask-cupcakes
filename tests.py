@@ -34,6 +34,7 @@ CUPCAKE_DATA_3 = {
     "image": "http://test.com/cupcake3.jpg"
 }
 
+
 class CupcakeViewsTestCase(TestCase):
     """Tests for views of API."""
 
@@ -55,6 +56,17 @@ class CupcakeViewsTestCase(TestCase):
         db.session.rollback()
 
     def test_list_cupcakes(self):
+        """ Check that all data on all cupcakes show
+            Expected Result: {"cupcakes": [
+                    {
+                "flavor": "Vanilla Test",
+                "id": 6,
+                "image": "http://test.com/cupcake.jpg",
+                "rating": 5,
+                "size": "TestSize"
+                    }
+            ]}"""
+
         with app.test_client() as client:
             resp = client.get("/api/cupcakes")
 
@@ -75,6 +87,8 @@ class CupcakeViewsTestCase(TestCase):
             })
 
     def test_get_cupcake(self):
+        """ Check that individual cupcake is shown in cupcakes database """
+
         with app.test_client() as client:
             url = f"/api/cupcakes/{self.cupcake.id}"
             resp = client.get(url)
@@ -92,6 +106,8 @@ class CupcakeViewsTestCase(TestCase):
             })
 
     def test_create_cupcake(self):
+        """ Check that new cupcake is added to cupcakes database """
+
         with app.test_client() as client:
             url = "/api/cupcakes"
             resp = client.post(url, json=CUPCAKE_DATA_2)
@@ -115,42 +131,70 @@ class CupcakeViewsTestCase(TestCase):
 
             self.assertEqual(Cupcake.query.count(), 2)
 
-
     def test_patch_cupcake(self):
+        """ Check that cupcake is edited and the updates on cupcakes
+            appear in cupcakes database
+        """
+
         with app.test_client() as client:
 
-            # Make a get request to get cupcake instance eith cupcake.id
-            url = "/api/cupcakes"
-            resp = client.post(url, json=CUPCAKE_DATA_3)
+            # Make a get request to get cupcake instance with cupcake.id
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            # resp = client.post(url, json=CUPCAKE_DATA_3)
 
-            cupcake_to_patch = resp.json.copy()
+            # cupcake_to_patch = resp.json.copy()
+            updated_cupcake = {"cupcake": CUPCAKE_DATA}
+            updated_cupcake["cupcake"]["flavor"] = "Vanilla Test"
 
-            cupcake_to_patch['cupcake']['flavor'] = "Vanilla Test"
-            print('flavor??????????????????? ----------------------->', cupcake_to_patch)
-            id = int(cupcake_to_patch['cupcake']['id'])
-
-
-
-            resp = client.patch(f'{url}/{id}', json=cupcake_to_patch)
+            # resp = client.patch(url, json=updated_cupcake)
+            resp = client.patch(url, json={"cupcake": {"flavor": "CHOCOLATE"}})
 
             data = resp.get_json()
-            # breakpoint()
-            print("resp $$$$$$$$$$$$$$$$$$$$$$$$$$------------------------------>>>", resp.json)
 
             # test for proper response code
             self.assertEqual(resp.status_code, 200)
 
-            #get and delete cupcake id
+            # self.assertEqual(data["cupcake"]["flavor"], "Vanilla Test")
+            self.assertEqual(data["cupcake"], {
+                "flavor": "CHOCOLATE",
+                "id": self.cupcake.id,
+                "size": "TestSize",
+                "rating": 5,
+                "image": "http://test.com/cupcake.jpg"
+            })
 
-            #test that data matches original, except updated field
+    def test_delete_cupcakes(self):
+        """ Check that selected cupcake is deleted and does not
+            appear in cupcakes database
+        """
 
-            self.assertEqual(data["cupcake"],
-                {
-                    "flavor": "Vanilla Test",
-                    "id": id,
-                    "size": data["cupcake"]["size"],
-                    "rating": data["cupcake"]["rating"],
-                    "image": data["cupcake"]["image"]
-                }
-            )
+        with app.test_client() as client:
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            resp = client.delete(url)
 
+            # resp_cupcakes = client.get()
+            # print(resp_cupcakes, "<------------------resp cupcakes")
+
+            # breakpoint()
+            # data = resp_cupcakes.get_json()
+            # print(data, "<-----------------------------------data")
+
+            data = resp.json
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual({'deleted': self.cupcake.id},
+                             data)
+# #             CUPCAKE_DATA = {
+#               "flavor": "TestFlavor",
+#               "size": "TestSize",
+#               "rating": 5,
+#               "image": "http://test.com/cupcake.jpg"
+# }
+
+            #  self.assertEqual(data["cupcake"] {
+            # "flavor": "Vanilla Test",
+            # "id": self.cupcake.id,
+            # "size": "TestSize",
+            # "rating": 5,
+            # "image": "http://test.com/cupcake.jpg"
+            # }
