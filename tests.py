@@ -184,17 +184,3 @@ class CupcakeViewsTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual({'deleted': self.cupcake.id},
                              data)
-# #             CUPCAKE_DATA = {
-#               "flavor": "TestFlavor",
-#               "size": "TestSize",
-#               "rating": 5,
-#               "image": "http://test.com/cupcake.jpg"
-# }
-
-            #  self.assertEqual(data["cupcake"] {
-            # "flavor": "Vanilla Test",
-            # "id": self.cupcake.id,
-            # "size": "TestSize",
-            # "rating": 5,
-            # "image": "http://test.com/cupcake.jpg"
-            # }
